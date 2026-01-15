@@ -326,19 +326,19 @@ In the future, I might come back to this project, and polish it even further by,
 
 ## Further Reading
 
-- The Real-Time Volumetric cloudscapes of Horizon Zero Dawn - Guerrilla games. (2015, May 13). https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn
+- The Real-Time Volumetric cloudscapes of Horizon Zero Dawn - Guerrilla games. (2015, May 13). [https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn)
 
-- Heckel, M. (2023, October 31). Real-time dreamy Cloudscapes with Volumetric Raymarching - The Blog of Maxime Heckel. The Blog of Maxime Heckel. https://blog.maximeheckel.com/posts/real-time-cloudscapes-with-volumetric-raymarching/
+- Heckel, M. (2023, October 31). Real-time dreamy Cloudscapes with Volumetric Raymarching - The Blog of Maxime Heckel. The Blog of Maxime Heckel. [https://blog.maximeheckel.com/posts/real-time-cloudscapes-with-volumetric-raymarching/](https://blog.maximeheckel.com/posts/real-time-cloudscapes-with-volumetric-raymarching/)
 
-- Blog, C. G. (2020, May 2). Volumetric Rendering Part 2. Chris’ Graphics Blog. https://wallisc.github.io/rendering/2020/05/02/Volumetric-Rendering-Part-2.html
+- Blog, C. G. (2020, May 2). Volumetric Rendering Part 2. Chris’ Graphics Blog. [https://wallisc.github.io/rendering/2020/05/02/Volumetric-Rendering-Part-2.html](https://wallisc.github.io/rendering/2020/05/02/Volumetric-Rendering-Part-2.html)
 
-- Schander, T. (2017, August 22). Enscape Cube. Shadertoy. https://www.shadertoy.com/view/4dSBDt
+- Schander, T. (2017, August 22). Enscape Cube. Shadertoy. [https://www.shadertoy.com/view/4dSBDt](https://www.shadertoy.com/view/4dSBDt)
 
-- Hillaire, S. (2019, May 16). Physically Based Sky, Atmosphere & Cloud Rendering - Frostbite. Electronic Arts Inc. https://www.ea.com/frostbite/news/physically-based-sky-atmosphere-and-cloud-rendering
+- Hillaire, S. (2019, May 16). Physically Based Sky, Atmosphere & Cloud Rendering - Frostbite. Electronic Arts Inc. [https://www.ea.com/frostbite/news/physically-based-sky-atmosphere-and-cloud-rendering](https://www.ea.com/frostbite/news/physically-based-sky-atmosphere-and-cloud-rendering)
 
-- Sebastian Lague. (2019, October 7). Coding Adventure: Clouds [Video]. YouTube. https://www.youtube.com/watch?v=4QOcCGI6xOU
+- Sebastian Lague. (2019, October 7). Coding Adventure: Clouds [Video]. YouTube. [https://www.youtube.com/watch?v=4QOcCGI6xOU](https://www.youtube.com/watch?v=4QOcCGI6xOU)
 
-- Wedekind, J. (2023, May 3). Procedural volumetric clouds. https://www.wedesoft.de/software/2023/05/03/volumetric-clouds/
+- Wedekind, J. (2023, May 3). Procedural volumetric clouds. [https://www.wedesoft.de/software/2023/05/03/volumetric-clouds/](https://www.wedesoft.de/software/2023/05/03/volumetric-clouds/)
 
 ---
 
