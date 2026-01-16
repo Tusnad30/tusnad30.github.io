@@ -6,9 +6,9 @@ description: 15 January 2026
 
 > **Important:** This blog post assumes that you already have some basic experience with programming, shaders, and graphics programming.
 
-Recently I started to become very interested about volumetric cloud rendering, because I very much like the cloud of clouds, especially when they are implemented correctly in games. Realistic volumetric clouds can add a lot of detail to a scene, which is why I was interested to find out more about the process of rendering volumetric clouds and to attempt to create my own volumetric cloud renderer. In this blog post, I will be documenting the process I had to go through to render volumetric and procedural clouds.
+Recently I started to become very interested about volumetric cloud rendering, because I very much like the visuals of clouds, especially when they are implemented correctly and beautifully in games. Realistic volumetric clouds in games can add a lot of detail to a scene, which is why I was interested to find out more about the process of rendering volumetric clouds and to attempt to create my own volumetric cloud renderer. In this blog post, I will be documenting the process I had to go through to render volumetric and procedural clouds.
 
-Below are images showcasing the end product of my own volumetric cloud renderer. My cloud renderer was written in C++ and is using DirectX 12 to perform the rendering. All code snippets shown in this blog post are written in C++.
+Below are images showcasing the end product of my own volumetric cloud renderer, which I was working on for around six weeks. My cloud renderer was written in C++ and is using DirectX 12 to perform the rendering. All code snippets shown in this blog post are written in C++ or HLSL.
 
 ![alt text](./assets/volumetric_clouds/end_product1.png)
 
@@ -16,7 +16,7 @@ Below are images showcasing the end product of my own volumetric cloud renderer.
 
 ## A Basic Ray-marcher
 
-There are different approaches to rendering volumetric clouds, but all approaches use a method called ray-marching. Ray-marching is a graphics rendering technique where we march along a ray, and take a certain number of sample steps along this ray. Usually ray-marching is used in combination of signed distance fields, but for our purpose of rendering clouds, we will be performing ray-marching using a fixed ray-march step size. Using ray-marching, we can predict the behavior of light and estimate how much light is absorbed by ray-marching through a volume with complex shapes, such as clouds. While ray-marching, it is important to understand that the usual reason for performing a ray-march in volume rendering is to calculate the accumulation of something, such as the light absorption, which can also be viewed as integration.
+There are different approaches to rendering volumetric clouds, but most approaches use a method called ray-marching. Ray-marching is a graphics rendering technique where we march along a ray, and take a certain number of sample steps along this ray. Usually ray-marching is used in combination with signed distance fields, but for our purpose of rendering clouds, we will be performing the ray-marching using a fixed ray-march step size. Using ray-marching, we can predict the behavior of light and estimate how much light is absorbed by ray-marching through a volume with complex shapes, such as clouds. While ray-marching, it is important to understand that the usual reason for performing a ray-march in volume rendering is to calculate the accumulation of something, such as the light absorption, which can also be viewed as integration.
 
 To begin writing a basic ray-marcher, it is good practice to initially only render a very basic shape. Personally, I choose to render a sphere, because it is very easy to check whether a point is inside of a sphere or not. Below is an illustration of how this basic ray-marcher will function. For each pixel on screen, a ray-marched ray will be traced towards the camera pixel direction. For each step of that ray-march, if the current step is located inside of the sphere, a variable will be incremented to keep track of the volume visibility.
 
@@ -65,7 +65,7 @@ In real life, there a multiple different types of cloud shapes. The most common 
 
 ### Which Noise To Use?
 
-Because of my previous coding experiences with procedural terrain generation, I first though that by using Perlin noise, I could generate realistic looking cumulus cloud shapes. Since Perlin noise is often used for procedurally generated objects, there is a lot of existing resources and documentation on Perlin noise. The following image shows the results of Perlin noise.
+Because of my previous coding experiences with procedural terrain generation, I first though that by using Perlin noise, I could generate realistic looking cumulus cloud shapes. Since Perlin noise is often used for procedurally generated objects, there is a lot of existing resources and documentation on Perlin noise. The following image shows the results of a Perlin noise algorithm.
 
 ![alt text](./assets/volumetric_clouds/perlin_noise.png)
 
@@ -74,11 +74,11 @@ Unfortunately, even though Perlin noise is quite easy to generate, is is not ver
 ![alt text](./assets/volumetric_clouds/cumulus.png)
 *Image from: https://d2cvjmix0699s1.cloudfront.net/resources/elephango/resourceFull/clouds_stratus_cumulus_cirrus_10313_full.jpg*
 
-Using Perlin noise, it is very difficult to recreate these round billowed shapes. A more suitable noise for creating the round billowy shapes of cumulus clouds is called Worley noise. Shown below is an image of Worley noise.
+When using Perlin noise, it is very difficult to recreate these round billowed shapes. A more suitable noise for creating the round billowy shapes of cumulus clouds is called Worley noise. Shown below is an image of Worley noise.
 
 ![alt text](./assets/volumetric_clouds/no_fbm.png)
 
-As seen above, Worley noise has the round billowy shapes that we are looking for. Even though Worley noise is very good for adding detail to the clouds, there are still some improvements to be made for creating the main cloud shape. For creating the main cloud shape, the best looking approach is to use something called Perlin-Worley noise, which was mentioned in the [Real-Time Volumetric Cloudscapes of Horizon Zero Dawn talk from Siggraph 2015](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn). This noise is a mix of Perlin and Worley noise, where we get the best of both noise algorithms. The reason for wanting to use this unique noise type is because, the Worley noise can make the cloud look a bit too round and too scattered. With the Perlin-Worley noise, we can achieve a more accurate look, where the cumulus clouds have a more blob-like shape and the clouds are less fractures and split up. Below is a comparison between using Perlin-Worley noise and only Worley noise for defining the main cloud shape.
+As seen above, Worley noise has the round billowy shapes that we are looking for. Even though Worley noise is very good for adding detail to the clouds, there are still some improvements to be made for creating the main cloud shape. For creating the main cloud shape, the best looking approach is to use something called Perlin-Worley noise, which was mentioned in the [Real-Time Volumetric Cloudscapes of Horizon Zero Dawn talk from Siggraph 2015](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn). This noise is a mix of Perlin and Worley noise, where we get the best of both noise algorithms. The reason for wanting to use this unique noise type is, because the Worley noise can make the cloud look a bit too round and too scattered. With the Perlin-Worley noise, we can achieve a more accurate look, where the cumulus clouds have a more blob-like shape and the clouds are less fractures and split up. Below is a comparison between using Perlin-Worley noise and only Worley noise for defining the main cloud shape.
 
 **Only Worley noise:**
 
@@ -88,7 +88,7 @@ As seen above, Worley noise has the round billowy shapes that we are looking for
 
 ![alt text](./assets/volumetric_clouds/perlinworley.png)
 
-To further increase the detail of the Worley noise, we combine different frequencies of Worley noise together. This is a method called Fractional Brownian motion (fBm). This is something that should also be done with the Perlin-Worley noise. Below is Worley noise shown with (left) and without (right) fBm.
+To further increase the detail of the Worley noise, we combine different frequencies of Worley noise together. This is a method called Fractional Brownian motion (fBm). This is something that should also be done with the Perlin-Worley noise. Below is Worley noise shown with fBm (left) and without fBm (right).
 
 ![alt text](./assets/volumetric_clouds/fbm.png)
 ![alt text](./assets/volumetric_clouds/no_fbm.png)
@@ -99,19 +99,19 @@ Generating the Worley noises and Perlin-Worley noises required for the cloud ren
 
 - **First 3D texture:** It has 4 color channels and a resolution of 128 x 128 x 128. In the first color channel, I store the Perlin-Worley noise, which is used to create the main cloud shape. The other 3 color channels store Worley noise at increasing frequencies, to add the billowy shapes to the clouds.
 
-- **Second 3D texture:** In only has 2 color channels and a resolution of 32 x 32 x 32. The 2 color channels store Worley noise at increasing frequencies. This texture is used to add more finer details to the cumulus clouds.
+- **Second 3D texture:** It only has 2 color channels and a resolution of 32 x 32 x 32. The 2 color channels store Worley noise at increasing frequencies. This texture is used to add finer details to the cumulus clouds.
 
-This a very similar setup for the noise textures as described in the [Real-Time Volumetric Cloudscapes of Horizon Zero Dawn talk from Siggraph 2015](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn). The generate the noise textures, I am using a great C++ library called [Fast Noise 2](https://github.com/Auburn/FastNoise2).
+This a very similar setup for the noise textures as described in the [Real-Time Volumetric Cloudscapes of Horizon Zero Dawn talk from Siggraph 2015](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn). To generate the noise textures, I am using a great C++ library called [Fast Noise 2](https://github.com/Auburn/FastNoise2).
 
 ### Using The Noise Textures
 
-To ensure a smooth look for the clouds, and avoiding a sudden cutoff to the clouds at the top and bottom of the cumulus cloud layer, it is important to create a falloff / gradient for the cloud densities. For example, since cumulus clouds appear less dense at the top of the cloud compared to the bottom of the cloud, it is important to create a wide density falloff towards the top of the cloud. A correct density falloff for the cloud along the altitude should look something like the image below.
+To ensure a smooth look for the clouds, and avoiding a sudden cutoff to the clouds at the top and bottom of the cumulus cloud layer, it is important to create a falloff / gradient for the cloud densities. For example, since cumulus clouds appear less dense at the top of the cloud compared to the bottom of the cloud, it is important to create a wider density falloff towards the top of the cloud. A correct density falloff for the cloud along the altitude should look something like the image below.
 
 ![alt text](./assets/volumetric_clouds/falloff.png)
 
-The bright colors represent high cloud densities, and the dark colors represent low cloud densities (no clouds). The gradient at the top is smoother compared to the bottom, because cumulus clouds tend to have flat bottoms, but soft and billowy tops.
+The bright colors represent high cloud densities, and the dark colors represent low cloud densities (no clouds). The gradient at the top is smoother compared to the bottom, because cumulus clouds tend to have flat bottoms, but are soft and billowy at the top.
 
-In my own cloud render, after sampling the 3d noise textures, I multiply and offset their noise values to get the correct amount of cloud coverage and intensity. Afterwards, I add together all the noise values and multiply them by the density falloff. A simplified code snipped for this can be seen below. This code is located in a `GetCloudDensity()` function, which returns the density of a cloud at a given position. It is important that the returned density remains between the values of 0 and 1.
+In my own cloud render, after sampling the 3d noise textures, I multiply and offset their noise values to get the correct amount of cloud coverage and intensity. Afterwards, I add together all the noise values and multiply them by the density falloff. A simplified code snippet for this can be seen below. This code is located in a `GetCloudDensity()` function, which returns the density of a cloud at a given position. It is important that the returned densities remain **between the values of 0 and 1**.
 
 ```cpp
 // Calculate the density falloff similar to the image shown above.
@@ -132,15 +132,15 @@ return saturate(combinedNoise * bottomFalloff * topFalloff);
 
 ### Where To Ray-march?
 
-Since ray-marching is quite expensive, it is important to avoid ray-marching in places where there are guaranteed zero clouds. Because of the cloud density falloff I discussed earlier, we know the minimum and maximum heights that clouds can appear. Therefore, before the ray-marching starts, a ray-plane intersection test is performed with two upward facing infinite planes located at the bottom and at the top of the cloud layer. Using the results of these two intersection tests, the origin and the target of the ray-march can be calculated. An illustration of this approach is shown below.
+Since ray-marching is quite expensive, it is important to avoid ray-marching in places where there are guaranteed zero clouds. Because of the cloud density falloff I discussed earlier, we know the minimum and maximum heights where the cumulus clouds can appear. Therefore, before the ray-marching starts, a ray-plane intersection test is performed with two upward facing infinite planes located at the bottom and at the top of the cloud layer. Using the results of these two intersection tests, the origin and the target for the ray-march can be calculated. An illustration of this approach is shown below.
 
 ![alt text](./assets/volumetric_clouds/cloud_march.png)
 
-The two blue lines represent the two upward facing infinite planes. After performing a ray-plane intersection test, the two intersection points, shown with the red triangles, are then used as the origin and target for the ray-marching. The ray-marching should only be performed between the two points shown with the red triangles, since that is the only area where cloud could be.
+The two blue lines represent the two upward facing infinite planes. After performing a ray-plane intersection test, the two intersection points, shown with the red triangles, are then used as the origin and target for the ray-marching. The ray-marching should only be performed between the two points shown with the red triangles, since that is the only area where cumulus clouds could appear.
 
 ### Improved Cloud Integration
 
-Before adding basic sunlight to the clouds, it is important to first modify the first basic ray-marching approach mentioned in the [A Basic Ray-marcher](#a-basic-ray-marcher) section. The main issue with this approach is that it only allows for one static cloud color. The proper way of doing things while ray-marching through a cloud is to keep track of the cloud transmittance and the cloud energy. The cloud transmittance is responsible for keeping track how much each ray-march step contributes to the final pixel color, and it will always decrease while marching through a cloud. The cloud energy is responsible for keeping track of all of the light energy that scatters towards the camera. This is also called in-scattering, which is responsible for cloud's white color. The cloud energy should accumulate with every ray-march step, but as the cloud transmittance decreases, the cloud energy will accumulate with a smaller amount.
+Before adding basic sunlight to the clouds, it is important to modify the first basic ray-marching approach mentioned in the [A Basic Ray-marcher](#a-basic-ray-marcher) section. The main issue with this approach is that it only allows for one static cloud color. The proper way of doing things while ray-marching through a cloud is to keep track of the cloud transmittance and the cloud energy. The cloud transmittance is responsible for keeping track how much each ray-march step contributes to the final pixel color, and it will always decrease while marching through a cloud. The cloud energy is responsible for keeping track of all of the light energy that scatters towards the camera. This is also called in-scattering. The cloud energy should accumulate with every ray-march step, but as the cloud transmittance decreases, the cloud energy will accumulate by a smaller amount.
 
 Another new concept to add to our cloud rendering approach is the Beer-Lambert Law. The Beer-Lambert Law describes how light is absorbed while traveling through a substance or a volume. The image below shows the behavior of the Beer-Lambert Law over distance **d**. Mainly the cloud transmittance will be affected by the results of the Beer-Lambert Law.
 
@@ -182,7 +182,11 @@ float cloudTransmittance = 1.0f;
 color = cloudEnergy + color * cloudTransmittance;
 ```
 
-While reading through a [talk by Sebastien Hillaire at Siggraph 2016](https://www.ea.com/frostbite/news/physically-based-sky-atmosphere-and-cloud-rendering) on volumetric cloud rendering, I discovered an energy conservative way of accumulating the cloud energy. This new method prevents the clouds from becoming dark at large ray-march step sizes, and bright at small ray-march step sizes.
+While reading through a [talk by Sebastien Hillaire at Siggraph 2016](https://www.ea.com/frostbite/news/physically-based-sky-atmosphere-and-cloud-rendering) on volumetric cloud rendering, I discovered an energy conservative way of accumulating the cloud energy. This new method prevents the clouds from becoming dark at large ray-march step sizes, and bright at small ray-march step sizes. This new energy conservative method is already shown in the code section above, but it is again shown below.
+
+```cpp
+cloudEnergy += cloudTransmittance * (radiance - radiance * absorption) / density;
+```
 
 ### Basic Cloud Lighting
 
@@ -218,7 +222,7 @@ lightEnergy = sunColor * lightAbsorption;
 float3 radiance = lightEnergy * density;
 ```
 
-To ensure that the clouds do not become too dark when all of the sun light is absorbed, it is also good to combine the light energy with an ambient color when setting the "radiance" variable. The ambient color can either be a constant color, or the ambient color can also be calculated and absorbed similarly to the sunLightEnergy. To calculate a realistic looking ambient color, a 3rd ray-marched ray is cast upwards, to determine how much ambient light is absorbed. The code for the ambient ray-marching is almost the exact same as the code for the light ray-marching shown above.
+To ensure that the clouds do not become too dark when all of the sun light is absorbed, it is also good to combine the light energy with an ambient color when setting the "radiance" variable. The ambient color can either be a constant color, or the ambient color can also be calculated and absorbed similarly to the sunLightEnergy. To calculate a realistic looking ambient color, a 3rd ray-marched ray can be cast upwards, to determine how much ambient light is absorbed. The code for the ambient ray-marching is almost the exact same as the code for the light ray-marching shown above.
 
 ```cpp
 ...  // Perform light ray-march and ambient ray-march
@@ -271,7 +275,7 @@ In my code, the phase function was computed only once outside of the main ray-ma
 lightEnergy = sunColor * lightAbsorption * phase;
 ```
 
-While reading through the [Real-Time Volumetric Cloudscapes of Horizon Zero Dawn talk from Siggraph 2015](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn), I discovered something called the powdered sugar effect. The powdered sugar effect can be mainly seen in the image below.
+While reading through the [Real-Time Volumetric Cloudscapes of Horizon Zero Dawn talk from Siggraph 2015](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn), I also discovered something called the powdered sugar effect. This powdered sugar effect can be mainly seen in the image below.
 
 ![alt text](./assets/volumetric_clouds/powder_effect.png)
 *Image from: https://www.angleofattack.com/wp-content/uploads/2023/04/Cumulonimbus-Clouds-scaled.jpg*
@@ -302,7 +306,7 @@ if (cloudTransmittance < 0.01f)
 
 ### Blue Noise Dithering
 
-Another great way of optimizing the cloud rendering is by dithering between the ray-march steps using random samples from blue noise. The dithering is performed by offsetting the initial starting positions for the ray-marches by random values, to hide the banding that appears with lower ray-march step sizes. The only issue with random values is that they can give a noisy result to the final image. This is where blue noise becomes very useful, since it is only a quasi-random sequence, and it appears to be less noisy. Below is a comparison between completely random white noise and quasi-random blue noise.
+Another great way of optimizing the cloud rendering is by dithering between the ray-march steps using random samples from blue noise. The dithering is performed by offsetting the initial starting positions for the ray-marches by random values, which can hide the banding that appears with lower ray-march step sizes. The only issue with random values is that they can give a noisy result to the final image. This is where blue noise becomes very useful, since it is only a quasi-random sequence, and it can create smoother random noise. Below is a comparison between random white noise and quasi-random blue noise.
 
 ![alt text](./assets/volumetric_clouds/blue_noise.png)
 
@@ -316,11 +320,13 @@ rayDist -= rayStepSize * blueNoiseValue;
 
 The reason for offsetting the ray-march origins the opposite way of the ray-march direction is so that close positions to the camera also get dithered with the clouds.
 
+After implementing blue noise, the ray-march step sizes can now be increased, without seeing a decrease in visual quality for the clouds. Having larger ray-march step sizes can significantly boost the performance of the cloud rendering.
+
 ## Conclusion and Future Additions
 
 During the six weeks of working on this cloud renderer, I learn a lot about volumetric rendering and ray-marching through semi-transparent volumes. Before starting this project, I always found realistic clouds in games very fascinating, but I never had any idea of how such realistic clouds are rendered. While attempting to optimize my cloud renderer, I also learnt some useful things about how the GPU works, mainly because, during this project, it was the first time I used Nvidia Nsight Graphics to find bottlenecks in my cloud rendering shader.
 
-Unfortunately, during these six week, I was not able to implement everything that I wanted to into my cloud renderer. For example, one optimization that can give significant performance improvements is to perform the cloud rendering at a lower resolution compared to the screen resolution. Unfortunately, upscaling can be quite difficult to implement, especially when a cloud is neighboring rasterized content, which is rendered at full resolution. There needs to be careful management of the colors and depths, so that the clouds don't unwillingly appear on top of rasterized content and vice versa.
+Unfortunately, during these six week, I was not able to implement everything that I wanted to into my cloud renderer. For example, one optimization that can give significant performance boosts is to perform the cloud rendering at a lower resolution compared to the screen resolution. Unfortunately, upscaling can be quite difficult to implement, especially when a cloud is neighboring rasterized content, which is rendered at full resolution. There needs to be careful management of the colors and depths, so that the clouds don't unwillingly appear on top of rasterized content and vice versa.
 
 In the future, I might come back to this project, and polish it even further by, for example, implementing the optimizations I mentioned above. Until then, feel free to read through the amazing sources listed below, which helped me to create this wonderful project!
 
